@@ -1,0 +1,91 @@
+- build:       <%= project_name %>
+  description: "Build file to generate a document"
+  default:
+  - clean
+  - dist
+
+- properties:
+    name:           "<%= project_name %>"
+    version:        "0.0.1"
+    build:          "build"
+    txt:            "#{name}.txt"
+    css:            "css/default.css"
+    img:            "img"
+    html:           "#{build}/#{name}.html"
+    html_pdf:       "#{build}/#{name}.pdf.html"
+    pdf:            "#{build}/#{name}.pdf"
+    xml:            "#{build}/#{name}.xml"
+    zip:            "#{name}-#{version}.zip"
+    zip_include:    ["*.html", "*.pdf"]
+    zip_exclude:    ["*.pdf.html"]
+    clean_dirs:     [:build]
+    clean_files:    ["**/*~"]
+    # PDF properties
+    font:           "Times"
+    font_size:      "12"
+    page_size:      "A4"
+    page_header:    "..."
+    page_footer:    "dt1"
+    head_foot_font: "Courier-Oblique"
+    head_foot_size: "10"
+    link_color:     "#0000A0"
+    link_style:     "plain"
+    permissions:    "no-modify"
+    top:            "2cm"
+    bottom:         "2cm"
+    left:           "2cm"
+    right:          "2cm"
+
+- target:      html
+  description: "Generate HTML document"
+  script:
+  - mkdir: :build
+  - copy:
+      dest:     :build
+      includes: "img/*"
+  - "beedoc -e -s #{css} -l #{txt} > #{html}"
+
+- target:      pdf
+  description: "Generate PDF document"
+  script:
+  - mkdir: :build
+  - "beedoc -p #{txt} > #{html_pdf}"
+  - "htmldoc -f #{pdf} \
+             --size #{page_size} \
+             --top #{top} \
+             --bottom #{bottom} \
+             --left #{left} \
+             --right #{right} \
+             --bodyfont #{font} \
+             --fontsize #{font_size} \
+             --header #{page_header} \
+             --footer #{page_footer} \
+             --headfootfont #{head_foot_font} \
+             --headfootsize #{head_foot_size} \
+             --linkcolor #{link_color} \
+             --linkstyle #{link_style} \
+             --permissions #{permissions} \
+             --charset iso-8859-1 \
+             --no-title \
+             --no-toc \
+             --compression=9 \
+             --embedfonts \
+             --webpage \
+             #{html_pdf}"
+
+- target:      dist
+  depends:     [html, pdf]
+  description: "Generate distribution archive"
+  script:
+  - cd: :build
+  - zip:
+      includes: :zip_include
+      excludes: :zip_exclude
+      prefix:   :name
+      dest:     :zip
+
+- target:      clean
+  description: "Clean genetated files"
+  script:
+  - rmdir: :clean_dirs
+  - rm:    :clean_files

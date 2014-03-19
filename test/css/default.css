@@ -1,0 +1,90 @@
+h1 {
+  font-family: Verdana, Helvetica, Arial, sans-serif;
+  color: #FF5050;
+  text-align: center;
+  font-size: 30pt;
+}
+h2,h3,h4,h5 {
+  font-family: Verdana, Helvetica, Arial, sans-serif;
+  color: #FF5050;
+  border-bottom: 2px dotted #000000;
+}
+p {
+  font-family: Verdana, Helvetica, Arial, sans-serif;
+  font-size: 10pt;
+}
+table {
+  font-family: Verdana, Helvetica, Arial, sans-serif;
+  font-size: 10pt;
+  border: solid 0px #000000;
+  border-collapse: collapse;
+}
+th {
+  padding: 5px;
+  background-color: #FF5050;
+  border: solid 1px #000000;
+  text-align: left;
+}
+td {
+  padding: 5px;
+  border: solid 1px #000000;
+  text-align: left;
+}
+li {
+  font-family: Verdana, Helvetica, Arial, sans-serif;
+  font-size: 10pt;
+  list-style: square;
+}
+a:link {
+  text-decoration: none;
+  color: #FF5050;
+}
+a:visited  {
+  text-decoration: none;
+  color: #000000;
+}
+a:active {
+  text-decoration: none;
+  color: #000000;
+}
+a:hover {
+  text-decoration: underline;
+  color: #FF5050;
+}
+pre {
+  clear: both;
+  overflow: auto;
+  background-color: #EFEFEF;
+  padding: 0;
+  padding: 1.0em;
+  border-width: 1px;
+  border-color: #C0C0C0;
+  border-style: solid;
+}
+
+/* Page style */
+table.page {
+  border: solid 2px #000000;
+}
+td.page {
+  padding: 20px;
+  border: solid 0px #000000;
+  font-family: Verdana, Helvetica, Arial, sans-serif;
+  font-size: 10pt;
+  background-color: #FFFFFF;
+}
+
+/* Note style */
+table.note {
+  border: solid 0px #000000;
+}
+tr.note {
+  border: solid 0px #000000;
+}
+td.note {
+  padding: 5px;
+  border: solid 0px #000000;
+  font-family: Verdana, Helvetica, Arial, sans-serif;
+  font-size: 10pt;
+  background-color: #FFFFFF;
+}

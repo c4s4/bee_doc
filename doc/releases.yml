@@ -1,0 +1,10 @@
+- release:     0.2.0
+  date:        2014-??-??
+  description: "???"
+  fixed:
+  - "Fixed encoding issue for Ruby 1.9 (by removing iconv usage)."
+  - "Fixed encoding issue for PDFs (HTML for PDF MUST be forced to UTF-8)."
+  added:
+  - "Added Rest and Blog output."
+  - "Added template project (that can be generated running command 
+     'bee -t doc.prj')."

@@ -1,0 +1,53 @@
+# encoding:   UTF-8
+# author:     Michel Casabianca
+# email:      michel.casabianca@gmail.com
+# date:       2008-03-08
+# keywords:   beedoc sample text format
+# title:      Sample BeeDoc Text
+
+! Titre de premier niveau
+
+!! Titre de deuxième niveau
+
+Ceci est un paragraphe de test. Ce paragraphe commence par un caractère
+quelconque, c'est à dire un caractère qui ne fait pas partie de la liste
+des caractères ayant une signification particulière [Texte de la note
+qui est très long afin de vérifier le bon comportement des notes de
+bas de page qui doivent rester dans leur boite.].
+
+Deuxième paragraphe, séparé du premier par une ligne vide.
+
+- Premier élément d'une liste à *puces*.
+  Deuxième ligne.
+- Deuxième élément d'une +liste+.
+- Troisième élément d'une _liste_.
+- Quatrième élément d'une ~liste~.
+
+* Liste numérotée.
+  Deuxième ligne.
+* Liste numérotée bis.
+* Liste numérotée ter.
+
+# Ligne de commentaire, ne doit pas apparaître dans le document après le rendu,
+# mais doit figurer en commentaire invisible si possible (dans <!-- --> en
+# HTML par exemple).
+
+$ Code source. 
+$ N'est pas réarrangé et est en fonte fixe.
+
+@ test.jpg
+
+@ src/test.rb
+
+Paragraphe avec du texte *en gras*, +en italique+, _souligné_ et ~fonte fixe~.
+On peut protéger des caractères spéciaux comme \* (gras), \+ (italique),
+\_ (souligné) et \~ (fonte fixe) en les faisant précéder du caractère \\.
+L'antislash lui même peut être écrit par la séquence \\\\. 
+
+Ceci est le {url\_du\_lien texte du lien}. Voici une note [Texte de la
+deuxième note.].
+
+Voici maintenant un test de caractères spéciaux (de formatage) HTML :
+<, >, ', " et & qui doivent apparaître correctement.
+
+Test de ponctuation : ; ? !

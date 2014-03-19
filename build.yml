@@ -1,0 +1,99 @@
+# Copyright 2008 Michel Casabianca <michel.casabianca@gmail.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Build info
+- build:       beedoc
+  description: "Text processor"
+  default:
+  - clean
+  - zip
+
+# Build properties
+- properties:
+    name:           "bee_doc"
+    version:        "0.2.0"
+    author:         "Michel Casabianca"
+    years:          "2008"
+    platform:       "Gem::Platform::RUBY"
+    summary:        "bee_doc is a text processor"
+    email:          "michel.casabianca@gmail.com"
+    homepage:       "http://bee.rubyforge.org"
+    lib_dir:        "lib"
+    build_dir:      "build"
+    readme_file:    "README"
+    readme_erb:     "README.erb"
+    gem_spec:       "gem.spec"
+    gem_spec_erb:   "gem.spec.erb"
+    gem_package:    "#{name}-#{version}.gem"
+    test_dir:       "test"
+    build_html_dir: "#{build_dir}/html"
+    build_pdf_dir:  "#{build_dir}/pdf"
+    zip_archive:    "#{build_dir}/#{name}-#{version}.zip"
+    zip_includes:   ["LICENSE", "README", "#{build_dir}/#{gem_package}"]
+    zip_excludes:   []
+    clean_dirs:     [:build_dir]
+    clean_files:    ["**/*~", "**/.DS_Store", :readme_file, :gem_spec]
+
+# Build targets
+- target:      test
+  description: Generate test document
+  script:
+  - mkdir: :build_html_dir
+  - "bin/beedoc -s #{test_dir}/css/default.css -e #{test_dir}/test.txt -o #{build_html_dir}/test.html"
+  - cp:
+      src: "#{test_dir}/img/*"
+      dest: :build_html_dir
+  - mkdir: :build_pdf_dir
+  - "bin/beedoc -p #{test_dir}/test.txt -o #{build_pdf_dir}/test.pdf.html"
+  - cp:
+      src: "#{test_dir}/img/*"
+      dest: :build_pdf_dir
+  - "htmldoc -f #{build_pdf_dir}/test.pdf --charset iso-8859-1 --size A4 --no-title --no-toc #{build_pdf_dir}/test.pdf.html"
+
+- target:      gem
+  depends:     test
+  description: Generate Gem package
+  script:
+  - mkdir: :build_dir
+  - erb: { src: :readme_erb, dest: :readme_file }
+  - erb: { src: :gem_spec_erb, dest: :gem_spec }
+  - gem: :gem_spec
+  - mv: { src: :gem_package, dest: :build_dir }
+
+- target:      zip
+  depends:     gem
+  description: Generate distribution archive
+  script:
+  - zip:
+      includes: :zip_includes
+      excludes: :zip_excludes
+      dest:     :zip_archive
+      prefix:   :name
+
+- target:      install
+  depends:     [clean, gem]
+  description: "Install generated gem"
+  script:
+  - "sudo gem install #{build_dir}/#{gem_package}"
+
+- target:      uninstall
+  description: "Uninstall gem"
+  script:
+  - "sudo gem uninstall -x beedoc"
+
+- target:      clean
+  description: Clean generated files
+  script:
+  - rmdir: :clean_dirs
+  - rm:    :clean_files

@@ -1,0 +1,55 @@
+- build:       prj
+  default:     all
+  description: "Generate a document project"
+
+- properties:
+    project_name:    my_document
+    project_version: 0.0.1
+    description:     This script will create a project for a BeeDoc document.
+
+- target:      welcome
+  description: "Print information message"
+  script:
+  - print: :description
+
+- target:      prompt
+  depends:     welcome
+  description: "Prompt for project information"
+  script:
+  - print: "Please answer following questions to generate the project:"
+  - prompt:
+      message: "What is the project's name?"
+      default: :project_name
+      property: project_name
+
+- target:      generate
+  depends:     prompt
+  description: "Generate project"
+  script:
+  - print: "Generating project..."
+  - rb: |
+      error "A directory named '#{project_name}' already exists, aborting" if
+        File.exists?("#{here}/#{project_name}")
+      name = "<%= name %>"
+  - mkdir: "#{here}/#{project_name}"
+  - copy:
+      root:     "#{base}/prj/"
+      dest:     "#{here}/#{project_name}/"
+      excludes: ["*.erb", "*.txt"]
+  - cp:
+      src:  "#{base}/prj/doc.txt"
+      dest: "#{here}/#{project_name}/#{project_name}.txt"
+  - erb:
+      src:  "#{base}/prj/build.erb"
+      dest: "#{here}/#{project_name}/build.yml"
+
+- target:      customization
+  depends:     generate
+  description: "Print information about project customization"
+  script:
+  - print: |
+      Project has been generated in directory '#{project_name}'. Type 'bee -b'
+      to print information about generated build file. Enjoy!
+
+- target: all
+  depends: [welcome, prompt, generate, customization]
