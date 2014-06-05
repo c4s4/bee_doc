@@ -106,7 +106,7 @@ module Bee
         [['(^|[^\\\\])\+(.*?)([^\\\\])\+', '\1*\2\3*'],
          ['(^|[^\\\\]?)\*(.*?)([^\\\\])\*', '\1**\2\3**'],
          ['(^|[^\\\\]?)_(.*?)([^\\\\])_',   '\1**\2\3**'],
-         ['(^|[^\\\\]?)~(.*?)([^\\\\])~',   '\1<tt>\2\3</tt>']]
+         ['(^|[^\\\\]?)~(.*?)([^\\\\])~',   '\1`\2\3`']]
       # Regexp for links
       LINKS_REGEXP = /(^|[^\\])\{(.*?)\}/m
       # Regexp for notes
@@ -304,7 +304,7 @@ module Bee
 
       # Convert to Markdown
       def to_mark
-        ''
+        @lines.map{|line| "% #{line.match(/#\s*(.*)/)[1]}"}.join("\n")
       end
 
       # Escape HTML comments, removing -- (wich are forbidden in comments).
