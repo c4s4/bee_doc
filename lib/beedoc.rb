@@ -80,7 +80,7 @@ module Bee
 
       # Convert to markdown.
       def to_mark
-        "#{inline_mark(@lines.join("\n"))}"
+        "#{inline_mark(@lines.join(" "))}"
       end
 
      # Regexp and replacements for inlines in HTML.
@@ -103,10 +103,11 @@ module Bee
          ['(^|[^\\\\]?)~(.*?)([^\\\\])~',   '\1``\2\3``']]
       # Regexp and replacements for inlines in Markdown.
       INLINES_MARK = 
-        [['(^|[^\\\\])\+(.*?)([^\\\\])\+', '\1*\2\3*'],
+        [['(^|[^\\\\]?)~(.*?)([^\\\\])~',   '\1`\2\3`'],
          ['(^|[^\\\\]?)\*(.*?)([^\\\\])\*', '\1**\2\3**'],
-         ['(^|[^\\\\]?)_(.*?)([^\\\\])_',   '\1**\2\3**'],
-         ['(^|[^\\\\]?)~(.*?)([^\\\\])~',   '\1`\2\3`']]
+         ['(^|[^\\\\])\+(.*?)([^\\\\])\+', '\1*\2\3*'],
+         ['(^|[^\\\\]?)_(.*?)([^\\\\])_',   '\1~~\2\3~~'],
+         ]
       # Regexp for links
       LINKS_REGEXP = /(^|[^\\])\{(.*?)\}/m
       # Regexp for notes
@@ -344,7 +345,7 @@ module Bee
       # Convert to Markdown.
       def to_mark
         indent = @lines.first.match(/\$\s*/)[0].length
-        "#{@lines.map{|line| '    '+line[indent..-1]}.join("\n")}</source>"
+        "```\n#{@lines.map{|line| line[indent..-1]}.join("\n")}\n```"
       end
 
     end
@@ -398,6 +399,20 @@ module Bee
         end
       end
 
+      # Convert to Markdown.
+      def to_mark
+        file = @lines.first.match(/@\s*(.*)/)[1]
+        ext = File.extname(file)
+        if ['.png', '.gif', '.jpg'].include?(ext.downcase)
+          # image
+          "![#{file}]"
+        else
+          # other file
+          source = File.read(File.join(@base, file))
+          "```\n#{source}\n```"
+        end
+      end
+
     end
 
     # Header block.
@@ -428,8 +443,17 @@ module Bee
         closure+"<sect><title>#{text}</title>"
       end
 
-    end
+      # Convert to Markdown.
+      def to_mark
+        match = @lines.first.match(/(!+)\s*(.*)/)
+        level = match[1].length
+        text = match[2]
+        @document.header_level = level
+        "#{'#'*level} #{text}"
+      end
 
+    end
+1
     # Unordered list block.
     class UnorderedList < Block
 
@@ -467,6 +491,23 @@ module Bee
           source << "<item>#{line}</item>\n"
         end
         source << "</list>"
+      end
+
+      # Convert to Markdown.
+      def to_mark
+        lines = []
+        for line in @lines
+          if line =~ /^-/
+            lines << line.match(/^-\s*(.*)/)[1]
+          else
+            lines.last << ' '+line.strip
+          end
+        end
+        source = ""
+        for line in lines
+          source << "- #{inline_mark(line)}\n"
+        end
+        source
       end
 
     end
@@ -508,6 +549,21 @@ module Bee
           source << "<item>#{line}</item>\n"
         end
         source << "</enum>"
+      end
+
+      # Convert to Markdown.
+      def to_mark
+        lines = []
+        index = 1
+        for line in @lines
+          if line =~ /^\*/
+            lines << "#{index}. #{inline_mark(line.match(/^\*\s*(.*)/)[1])}"
+          else
+            lines.last << " #{inline_mark(line.strip)}"
+          end
+          index += 1
+        end
+        lines.join("\n")
       end
 
     end
