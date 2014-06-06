@@ -221,7 +221,7 @@ module Bee
               url = body
               link = body
             end
-            "#{before}[#{url}](#{link})#{after}"
+            "#{before}[#{link}](#{url})#{after}"
           end
         end
         # process escapes (that is \x is replaced with x)
