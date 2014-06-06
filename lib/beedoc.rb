@@ -73,11 +73,6 @@ module Bee
         "<p>#{inline_xml(escape_xml(@lines.join("\n")))}</p>"
       end
 
-      # Convert to rest.
-      def to_rest
-        "#{inline_rest(@lines.join("\n"))}"
-      end
-
       # Convert to markdown.
       def to_mark
         "#{inline_mark(@lines.join(" "))}"
@@ -95,12 +90,6 @@ module Bee
          ['(^|[^\\\\]?)\*(.*?)([^\\\\])\*', '\1<imp>\2\3</imp>'],
          ['(^|[^\\\\]?)_(.*?)([^\\\\])_',   '\1<imp>\2\3</imp>'],
          ['(^|[^\\\\]?)~(.*?)([^\\\\])~',   '\1<code>\2\3</code>']]
-      # Regexp and replacements for inlines in Rest.
-      INLINES_REST = 
-        [['(^|[^\\\\])\+(.*?)([^\\\\])\+', '\1*\2\3*'],
-         ['(^|[^\\\\]?)\*(.*?)([^\\\\])\*', '\1**\2\3**'],
-         ['(^|[^\\\\]?)_(.*?)([^\\\\])_',   '\1**\2\3**'],
-         ['(^|[^\\\\]?)~(.*?)([^\\\\])~',   '\1``\2\3``']]
       # Regexp and replacements for inlines in Markdown.
       INLINES_MARK = 
         [['(^|[^\\\\]?)~(.*?)([^\\\\])~',   '\1`\2\3`'],
@@ -198,48 +187,6 @@ module Bee
         text
       end
 
-      # Utility method to process inlines for Rest.
-      # - text: text to process.
-      def inline_rest(text)
-        # process simple inlines
-        for inline in INLINES_REST
-          text.gsub!(/#{inline[0]}/m, inline[1]) if text.match(/#{inline[0]}/m)
-        end
-        # process link inlines
-        if text.match(LINKS_REGEXP)
-          text.gsub!(LINKS_REGEXP) do |string|
-            match = string.match(LINKS_REGEXP)
-            before = match[1]
-            body = match[2]
-            after = match[3]
-            parts = body.split(' ')
-            if parts.length > 1
-              url = parts.first
-              link = parts[1..-1].join(' ')
-            else
-              url = body
-              link = body
-            end
-            "#{before} <link url='#{url}'>#{link}</link>#{after}"
-          end
-        end
-        # process note inlines
-        if text.match(NOTES_REGEXP)
-          text.gsub!(NOTES_REGEXP) do |string|
-            match = string.match(NOTES_REGEXP)
-            before = match[1]
-            body = match[2]
-            after = match[3]
-            @document.notes << body
-            index = @document.notes.length
-            "#{before}<note>#{body}</note>#{after}"
-          end
-        end
-        # process escapes (that is \x is replaced with x)
-        text.gsub!(/\\(.)/, "\\1") if text.match(/\\(.)/)
-        text
-      end
-
       # Utility method to process inlines for Markdown.
       # - text: text to process.
       def inline_mark(text)
@@ -247,6 +194,18 @@ module Bee
         for inline in INLINES_MARK
           text.gsub!(/#{inline[0]}/m, inline[1]) if text.match(/#{inline[0]}/m)
         end
+        # process note inlines
+        if text.match(NOTES_REGEXP)
+          text.gsub!(NOTES_REGEXP) do |string|
+            match = string.match(NOTES_REGEXP)
+            before = match[1]
+            body = match[2]
+            after = match[3]
+            @document.notes << body
+            index = @document.notes.length
+            "#{before}#{index}[#{body}]#{after}"
+          end
+        end
         # process link inlines
         if text.match(LINKS_REGEXP)
           text.gsub!(LINKS_REGEXP) do |string|
@@ -262,19 +221,7 @@ module Bee
               url = body
               link = body
             end
-            "#{before}[#{link}](#{url})#{after}"
-          end
-        end
-        # process note inlines
-        if text.match(NOTES_REGEXP)
-          text.gsub!(NOTES_REGEXP) do |string|
-            match = string.match(NOTES_REGEXP)
-            before = match[1]
-            body = match[2]
-            after = match[3]
-            @document.notes << body
-            index = @document.notes.length
-            "#{before}^[#{body}]#{after}"
+            "#{before}[#{url}](#{link})#{after}"
           end
         end
         # process escapes (that is \x is replaced with x)
@@ -305,7 +252,7 @@ module Bee
 
       # Convert to Markdown
       def to_mark
-        @lines.map{|line| "% #{line.match(/#\s*(.*)/)[1]}"}.join("\n")
+        # there is no official syntax for comments in markdown
       end
 
       # Escape HTML comments, removing -- (wich are forbidden in comments).
@@ -405,7 +352,7 @@ module Bee
         ext = File.extname(file)
         if ['.png', '.gif', '.jpg'].include?(ext.downcase)
           # image
-          "![#{file}]"
+          "![#{file}]()"
         else
           # other file
           source = File.read(File.join(@base, file))
@@ -763,27 +710,6 @@ EOF
 </weblog>
 EOF
 
-      # Rest document template
-      REST_TEMPLATE = <<'EOF'
-% encoding = @properties['encoding'] || 'UTF-8'
-% id = @properties['title'].gsub(/ /, '_')
-% title = @properties['title']
-% author = @properties['author']
-% email = @properties['email']
-% date = @properties['date']
-% lang = 'fr'
-
-<%= '='*(title.length+2) %>
- <%= title %>
-<%= '='*(title.length+2) %>
-
-% for block in @blocks
-%   rest = block.to_rest
-<%= rest %>
-
-% end
-EOF
-
       # Markdown document template
       MARK_TEMPLATE = <<'EOF'
 % encoding = @properties['encoding'] || 'UTF-8'
@@ -873,12 +799,6 @@ EOF
       # Convert to blog.
       def to_blog
         template = ERB.new(BLOG_TEMPLATE, 0, '%')
-        template.result binding
-      end
-
-      # Convert to Rest.
-      def to_rest
-        template = ERB.new(REST_TEMPLATE, 0, '%')
         template.result binding
       end
 
