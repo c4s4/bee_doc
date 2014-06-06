@@ -352,7 +352,7 @@ module Bee
         ext = File.extname(file)
         if ['.png', '.gif', '.jpg'].include?(ext.downcase)
           # image
-          "![#{file}]()"
+          "![](#{file})"
         else
           # other file
           source = File.read(File.join(@base, file))
