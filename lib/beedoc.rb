@@ -252,7 +252,7 @@ module Bee
 
       # Convert to Markdown
       def to_mark
-        # there is no official syntax for comments in markdown
+        @lines.map{|line| "% #{line.match(/#\s*(.*)/)[1]}"}.join("\n")
       end
 
       # Escape HTML comments, removing -- (wich are forbidden in comments).
@@ -719,9 +719,6 @@ EOF
 % email = @properties['email']
 % date = @properties['date']
 % lang = 'fr'
-<%= "% #{title}" %>
-<%= "% #{author}" %>
-
 % for block in @blocks
 %   text = block.to_mark
 <%= text %>
