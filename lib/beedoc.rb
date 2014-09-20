@@ -304,7 +304,7 @@ module Bee
 
       # Convert to HTML.
       def to_html
-        file = filename()
+        file = get_path()
         ext = File.extname(file)
         if ['.png', '.gif', '.jpg'].include?(ext.downcase)
           # image
@@ -318,7 +318,7 @@ module Bee
 
       # Convert to PDF HTML.
       def to_pdf
-        file = filename()
+        file = get_path()
         ext = File.extname(file)
         if ['.png', '.gif', '.jpg'].include?(ext.downcase)
           # image
@@ -334,7 +334,7 @@ module Bee
 
       # Convert to XML.
       def to_xml
-        file = filename()
+        file = get_path()
         ext = File.extname(file)
         if ['.png', '.gif', '.jpg'].include?(ext.downcase)
           # image
@@ -348,7 +348,7 @@ module Bee
 
       # Convert to Markdown.
       def to_mark
-        file = filename()
+        file = get_path()
         ext = File.extname(file)
         if ['.png', '.gif', '.jpg'].include?(ext.downcase)
           # image
@@ -360,8 +360,8 @@ module Bee
         end
       end
       
-      def filename()
-        return @lines.first.match(/@\s*(.*\/)?(.*)/)[2]
+      def get_path()
+        return @lines.first.match(/@\s*(.*)/)[1]
       end
 
     end
