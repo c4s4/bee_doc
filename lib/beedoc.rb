@@ -304,7 +304,7 @@ module Bee
 
       # Convert to HTML.
       def to_html
-        file = @lines.first.match(/@\s*(.*)/)[1]
+        file = filename()
         ext = File.extname(file)
         if ['.png', '.gif', '.jpg'].include?(ext.downcase)
           # image
@@ -318,7 +318,7 @@ module Bee
 
       # Convert to PDF HTML.
       def to_pdf
-        file = @lines.first.match(/@\s*(.*)/)[1]
+        file = filename()
         ext = File.extname(file)
         if ['.png', '.gif', '.jpg'].include?(ext.downcase)
           # image
@@ -334,7 +334,7 @@ module Bee
 
       # Convert to XML.
       def to_xml
-        file = @lines.first.match(/@\s*(.*)/)[1]
+        file = filename()
         ext = File.extname(file)
         if ['.png', '.gif', '.jpg'].include?(ext.downcase)
           # image
@@ -348,7 +348,7 @@ module Bee
 
       # Convert to Markdown.
       def to_mark
-        file = @lines.first.match(/@\s*(.*)/)[1]
+        file = filename()
         ext = File.extname(file)
         if ['.png', '.gif', '.jpg'].include?(ext.downcase)
           # image
@@ -358,6 +358,10 @@ module Bee
           source = File.read(File.join(@base, file))
           "```\n#{source}\n```"
         end
+      end
+      
+      def filename()
+        return @lines.first.match(/@\s*(.*\/)?(.*)/)[2]
       end
 
     end
