@@ -308,7 +308,7 @@ module Bee
         ext = File.extname(file)
         if ['.png', '.gif', '.jpg'].include?(ext.downcase)
           # image
-          "<center><p><img src='#{file}'></p></center>"
+          "<center><p><img src='#{make_path(file)}'></p></center>"
         else
           # other file
           source = escape_xml(File.read(File.join(@base, file)))
@@ -322,7 +322,7 @@ module Bee
         ext = File.extname(file)
         if ['.png', '.gif', '.jpg'].include?(ext.downcase)
           # image
-          "<center><p><img src='#{file}'></p></center>"
+          "<center><p><img src='#{make_path(file)}'></p></center>"
         else
           # other file
           source = escape_xml(File.read(File.join(@base, file)))
@@ -338,7 +338,7 @@ module Bee
         ext = File.extname(file)
         if ['.png', '.gif', '.jpg'].include?(ext.downcase)
           # image
-          "<figure url='#{file}'></figure>"
+          "<figure url='#{make_path(file)}'></figure>"
         else
           # other file
           source = escape_xml(File.read(File.join(@base, file)))
@@ -352,7 +352,7 @@ module Bee
         ext = File.extname(file)
         if ['.png', '.gif', '.jpg'].include?(ext.downcase)
           # image
-          "![](#{file})"
+          "![](#{make_path(file)})"
         else
           # other file
           source = File.read(File.join(@base, file))
@@ -362,6 +362,23 @@ module Bee
       
       def get_path()
         return @lines.first.match(/@\s*(.*)/)[1]
+      end
+      
+      def make_path(file)
+        if @image_dir == nil
+          return file
+        else
+          name = file.match(/(.*\/)?(.*)/)[2]
+          if @image_dir.length == 0
+            return name
+          else
+            if @image_dir.end_with?('/')
+              return "#{@image_dir}#{name}"
+            else
+              return "#{@image_dir}/#{name}"
+            end
+          end
+        end
       end
 
     end
@@ -734,9 +751,10 @@ EOF
       # - text: text source.
       # - stylesheets: array of stylesheet file names.
       # - base: document base directory.
-      def initialize(text, base, format, stylesheets=nil, embed=true)
+      def initialize(text, base, format, stylesheets=nil, embed=true, image_dir=nil)
         @notes = []
         @base = base
+        @image_dir = image_dir
         @header_level = 0
         lines = text.split("\n")
         blocks = []

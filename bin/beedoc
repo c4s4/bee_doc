@@ -7,7 +7,7 @@ require 'getoptlong'
 
 # Command line help
 HELP = <<'EOF'
-beedoc [-h] [-l|-p|-x|-r] [-s css] file
+beedoc [-h] [-l|-p|-x|-b|-r|-m] [-s css] file
 -h       To print this help screen and exit.
 -l       To output an HTML file (default).
 -p       To output a PDF file.
@@ -17,6 +17,7 @@ beedoc [-h] [-l|-p|-x|-r] [-s css] file
 -m       To output a Markdown file.
 -s css   To use a given stylesheet.
 -e       Embed stylesheet(s) in document.
+-d dir   Image directory.
 -o file  Output file (if none, result is written to standard output).
 file     File to process.
 EOF
@@ -25,6 +26,7 @@ EOF
 format = :html
 embed = false
 stylesheets = []
+image_dir = nil
 output_file = nil
 opts = GetoptLong.new(['--help',       '-h', GetoptLong::NO_ARGUMENT],
                       ['--html',       '-l', GetoptLong::NO_ARGUMENT],
@@ -35,6 +37,7 @@ opts = GetoptLong.new(['--help',       '-h', GetoptLong::NO_ARGUMENT],
                       ['--mark',       '-m', GetoptLong::NO_ARGUMENT],
                       ['--stylesheet', '-s', GetoptLong::REQUIRED_ARGUMENT],
                       ['--embed',      '-e', GetoptLong::NO_ARGUMENT],
+                      ['--img-dir',    '-d', GetoptLong::REQUIRED_ARGUMENT],
                       ['--output',     '-o', GetoptLong::REQUIRED_ARGUMENT])
 opts.each do |opt, arg|
   case opt
@@ -57,6 +60,8 @@ opts.each do |opt, arg|
     stylesheets << arg
   when '--embed'
     embed = true
+  when '--img-dir'
+    image_dir = arg
   when '--output'
     output_file = arg
   end
@@ -67,7 +72,7 @@ output = ''
 for file in files
   base = File.dirname(file)
   document = Bee::Doc::Document.new(File.read(file), base, format, 
-                                    stylesheets, embed)
+                                    stylesheets, embed, image_dir)
   if format == :html
     output << document.to_html
   elsif format == :pdf
